@@ -1,7 +1,8 @@
 
 ISO_URLBASE = https://releases.ubuntu.com/22.04/
 ISO_FILENAME = ubuntu-22.04.4-live-server-amd64.iso
-ISO_MOUNTPOINT = /mnt/iso
+ISO_USR = $(ls /mnt/ |grep -v iso)
+ISO_MOUNTPOINT = /mnt/${ISO_USR}
 ISO_ROOT = iso_root
 
 ## copy files
@@ -42,17 +43,17 @@ init:
 	sudo mkdir -p $(ISO_MOUNTPOINT)
 	(mountpoint $(ISO_MOUNTPOINT) && sudo umount -q $(ISO_MOUNTPOINT)) || true
 	sudo mount -o ro,loop $(ISO_FILENAME) $(ISO_MOUNTPOINT)
-	rsync -av --exclude=$(ISO_ROOT) --exclude=/proc --exclude=/sys --exclude=/dev --exclude=/run --exclude=/mnt --exclude=/media --exclude=/tmp / $(ISO_ROOT)/.
+	rsync -av $(ISO_MOUNTPOINT)/. $(ISO_ROOT)/.
 	sudo umount $(ISO_MOUNTPOINT)
 
 .PHONY: setup
 setup:
 	chmod 755 $(ISO_ROOT)
 	chmod 644 $(GRUBCFG_DEST)
-	cp -f $(GRUBCFG_SRC) $(GRUBCFG_DEST)
+	cp -rf $(GRUBCFG_SRC) $(GRUBCFG_DEST)
 	chmod 755 $(ISO_ROOT)
-	cp -f $(USERDATA_SRC) $(USERDATA_DEST)
-	cp -f $(METADATA_SRC) $(METADATA_DEST)
+	cp -rf $(USERDATA_SRC) $(USERDATA_DEST)
+	cp -rf $(METADATA_SRC) $(METADATA_DEST)
 	rsync -av $(EXTRAS_SRCDIR)/. $(EXTRAS_DESTDIR)/.
 
 .PHONY: setup-isolinux
