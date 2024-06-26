@@ -42,7 +42,7 @@ init:
 	sudo mkdir -p $(ISO_MOUNTPOINT)
 	(mountpoint $(ISO_MOUNTPOINT) && sudo umount -q $(ISO_MOUNTPOINT)) || true
 	sudo mount -o ro,loop $(ISO_FILENAME) $(ISO_MOUNTPOINT)
-	rsync -av --exclude=$(ISO_ROOT) --exclude=/proc --exclude=/sys --exclude=/dev --exclude=/run --exclude=/mnt --exclude=/media --exclude=/tmp / $(ISO_ROOT)/.
+	rsync -av $(ISO_MOUNTPOINT)/. $(ISO_ROOT)/.
 	sudo umount $(ISO_MOUNTPOINT)
 
 .PHONY: setup
