@@ -1,8 +1,8 @@
 
 ISO_URLBASE = https://releases.ubuntu.com/22.04/
 ISO_FILENAME = ubuntu-22.04.4-live-server-amd64.iso
-ISO_USR = $(ls /mnt/ |grep -v iso)
-ISO_MOUNTPOINT = /mnt/${ISO_USR}
+ISO_MOUNTPOINT = /mnt/iso
+ISO_MOUNTPOINT1 = /mnt/tmp
 ISO_ROOT = iso_root
 
 ## copy files
@@ -41,9 +41,11 @@ init:
 	( test -d $(ISO_ROOT) && mv -f $(ISO_ROOT) $(ISO_ROOT).$(shell date +%Y%m%d.%H%M%S) ) || true
 	mkdir -p $(ISO_ROOT)
 	sudo mkdir -p $(ISO_MOUNTPOINT)
+	sudo mkdir -p $(ISO_MOUNTPOINT1)
 	(mountpoint $(ISO_MOUNTPOINT) && sudo umount -q $(ISO_MOUNTPOINT)) || true
 	sudo mount -o ro,loop $(ISO_FILENAME) $(ISO_MOUNTPOINT)
 	rsync -av $(ISO_MOUNTPOINT)/. $(ISO_ROOT)/.
+	rsync -aAXv --exclude={"/dev/*","/proc/*","/sys/*","/tmp/*","/run/*","/mnt/*","/media/*","/lost+found"} / /mnt/tmp
 	sudo umount $(ISO_MOUNTPOINT)
 
 .PHONY: setup
@@ -88,6 +90,8 @@ geniso-isolinux:
 	-no-emul-boot -isohybrid-gpt-basdat \
 	-isohybrid-mbr $(GENISO_HYBRIDMBR) \
 	"${ISO_ROOT}"
+	sudo env xorriso -as mkisofs -R -J -joliet-long -l \
+	-iso-level 3 -o ubuntusystemfile.$(shell date +%Y%m%d.%H%M%S).iso $(ISO_MOUNTPOINT1)
 
 .PHONY: clean
 clean:
