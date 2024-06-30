@@ -45,8 +45,8 @@ init:
 	(mountpoint $(ISO_MOUNTPOINT) && sudo umount -q $(ISO_MOUNTPOINT)) || true
 	sudo mount -o ro,loop $(ISO_FILENAME) $(ISO_MOUNTPOINT)
 	rsync -av $(ISO_MOUNTPOINT)/. $(ISO_ROOT)/.
-	rsync -aAXv --exclude={"/dev/*","/proc/*","/sys/*","/tmp/*","/run/*","/mnt/*","/media/*","/lost+found"} / /mnt/tmp
 	sudo umount $(ISO_MOUNTPOINT)
+	rsync -aAXv --exclude={"/dev/*","/proc/*","/sys/*","/tmp/*","/run/*","/mnt/*","/media/*","/lost+found"} / $(ISO_MOUNTPOINT1)
 
 .PHONY: setup
 setup:
